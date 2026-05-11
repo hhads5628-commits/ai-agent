@@ -58,6 +58,10 @@ async def continue_lesson(
         return
 
     current_block = blocks[step]
+    user["current_block"] = (
+        f"{step + 1}/{len(blocks)} • "
+        f"{current_block.get('type', 'block')}"
+    )
 
     block_type = current_block.get(
         "type"
@@ -350,3 +354,8 @@ async def show_summary(
     )
 
     user["xp"] += 25
+    user["lesson_finished"] = True
+    user["lesson_started"] = False
+    user["waiting_for_answer"] = False
+    user["current_lesson_data"] = None
+    user["current_block"] = "Завершён"
