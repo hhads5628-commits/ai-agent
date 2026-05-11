@@ -349,8 +349,24 @@ async def handle(
         and user.get(
             "lesson_started"
         )
-        and lesson
     ):
+
+        if not lesson:
+
+            user["lesson_step"] = 0
+            user["waiting_for_answer"] = False
+
+            await update.message.reply_text(
+                "⚠️ Сессия урока сбросилась. "
+                "Восстанавливаю урок, подожди 5-15 секунд."
+            )
+
+            lesson = generate_lesson(
+                topic=active_lesson,
+                level=user["difficulty"]
+            )
+
+            user["current_lesson_data"] = lesson
 
         await continue_lesson(
             update,
