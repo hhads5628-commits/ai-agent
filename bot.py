@@ -371,7 +371,10 @@ async def handle(
         .strip()
     )
 
-    is_next_command = cleaned_next_command == "далее"
+    is_next_command = (
+        cleaned_next_command == "далее"
+        or cleaned_next_command.startswith("далее ")
+    )
 
     if (
         is_next_command

@@ -75,9 +75,17 @@ async def continue_lesson(
         f"{current_block.get('type', 'block')}"
     )
 
-    block_type = current_block.get(
-        "type"
-    )
+    block_type = (
+        current_block.get("type")
+        or ""
+    ).strip().lower()
+
+    # Backward compatibility:
+    # old/generated lessons can contain `case` blocks.
+    # These blocks are interactive and should behave
+    # like "practice".
+    if block_type == "case":
+        block_type = "practice"
 
     # =====================================================
     # INTRO
@@ -180,6 +188,25 @@ async def continue_lesson(
         )
 
         return
+
+    # =====================================================
+    # UNKNOWN BLOCK TYPE
+    # =====================================================
+    #
+    # Prevent lesson from getting stuck on unexpected
+    # block types by moving forward.
+    await update.message.reply_text(
+        _safe_lesson_text(
+            current_block.get(
+                "text",
+                "⚠️ Неизвестный блок урока. Пропускаю и иду дальше."
+            )
+        )
+    )
+
+    user["lesson_step"] += 1
+
+    return
 
 # =====================================================
 # PROCESS ANSWER
