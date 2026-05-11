@@ -1,5 +1,17 @@
 # services/lesson_engine.py
 
+MAX_LESSON_MESSAGE_LENGTH = 3500
+
+
+def _safe_lesson_text(text):
+    if not isinstance(text, str):
+        text = str(text or "")
+
+    if len(text) <= MAX_LESSON_MESSAGE_LENGTH:
+        return text
+
+    return text[:MAX_LESSON_MESSAGE_LENGTH - 1] + "…"
+
 # =====================================================
 # UNIVERSAL LESSON ENGINE
 # =====================================================
@@ -75,10 +87,10 @@ async def continue_lesson(
 
         await update.message.reply_text(
 
-            current_block.get(
+            _safe_lesson_text(current_block.get(
                 "text",
                 ""
-            )
+            ))
         )
 
         user["lesson_step"] += 1
@@ -93,10 +105,10 @@ async def continue_lesson(
 
         await update.message.reply_text(
 
-            current_block.get(
+            _safe_lesson_text(current_block.get(
                 "text",
                 ""
-            )
+            ))
         )
 
         user["lesson_step"] += 1
@@ -111,10 +123,10 @@ async def continue_lesson(
 
         await update.message.reply_text(
 
-            current_block.get(
+            _safe_lesson_text(current_block.get(
                 "text",
                 ""
-            )
+            ))
         )
 
         user["lesson_step"] += 1
@@ -137,10 +149,10 @@ async def continue_lesson(
 
         await update.message.reply_text(
 
-            current_block.get(
+            _safe_lesson_text(current_block.get(
                 "question",
                 ""
-            )
+            ))
         )
 
         return
@@ -161,10 +173,10 @@ async def continue_lesson(
 
         await update.message.reply_text(
 
-            current_block.get(
+            _safe_lesson_text(current_block.get(
                 "task",
                 ""
-            )
+            ))
         )
 
         return
@@ -230,10 +242,10 @@ async def process_answer(
 
         await update.message.reply_text(
 
-            current_block.get(
+            _safe_lesson_text(current_block.get(
                 "success_text",
                 "🔥 Хороший ответ"
-            )
+            ))
         )
 
         strengths = user.get(
@@ -260,10 +272,10 @@ async def process_answer(
 
         await update.message.reply_text(
 
-            current_block.get(
+            _safe_lesson_text(current_block.get(
                 "fail_text",
                 "⚠️ Попробуй ещё глубже"
-            )
+            ))
         )
 
         weak_topics = user.get(
@@ -333,7 +345,8 @@ async def show_summary(
 
     await update.message.reply_text(
 
-        "🏁 Урок завершён\n\n"
+        _safe_lesson_text(
+            "🏁 Урок завершён\n\n"
 
         "📊 Разбор обучения\n\n"
 
@@ -350,7 +363,8 @@ async def show_summary(
         "• AI feedback\n"
         "• анализ ответов\n\n"
 
-        "⭐ +25 XP"
+            "⭐ +25 XP"
+        )
     )
 
     user["xp"] += 25
