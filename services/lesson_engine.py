@@ -184,6 +184,7 @@ async def continue_lesson(
         user[
             "current_block_type"
         ] = "quiz"
+        user["answer_attempts"] = 0
 
         await update.message.reply_text(
             question_text
@@ -218,6 +219,7 @@ async def continue_lesson(
         user[
             "current_block_type"
         ] = "practice"
+        user["answer_attempts"] = 0
 
         await update.message.reply_text(
             task_text
@@ -286,7 +288,13 @@ async def process_answer(
         )
     )
 
-    answer_text = (text or "").lower()
+    answer_text = (text or "").lower().strip()
+
+    if answer_text in {"далее", "➡️ далее", "➡ далее"}:
+        await update.message.reply_text(
+            "✍️ Сначала дай ответ на вопрос. Я проверю и дам персональный разбор."
+        )
+        return
     matched_keywords = [
         word
         for word in keywords
@@ -353,9 +361,12 @@ async def process_answer(
 
     else:
 
+        attempts = user.get("answer_attempts", 0) + 1
+        user["answer_attempts"] = attempts
+
         feedback_text = _safe_lesson_text(current_block.get(
             "fail_text",
-            "⚠️ Попробуй ещё глубже"
+            "⚠️ Пока не засчитано. Давай докрутим ответ."
         ))
 
         if keywords:
@@ -365,7 +376,9 @@ async def process_answer(
                 f"Добавь идеи: {expected}"
             )
 
-        await update.message.reply_text(feedback_text)
+        feedback_text += (
+            "\n\n💬 Напиши новый ответ, и я проверю его ещё раз."
+        )
 
         weak_topics = user.get(
             "weak_topics",
@@ -383,6 +396,14 @@ async def process_answer(
             "weak_topics"
         ] = weak_topics
 
+        if attempts < 2:
+            await update.message.reply_text(feedback_text)
+            return
+
+        await update.message.reply_text(
+            feedback_text + "\n\n➡️ Переходим дальше, но к этому навыку вернёмся в следующих уроках."
+        )
+
     # =====================================================
     # NEXT STEP
     # =====================================================
@@ -390,6 +411,7 @@ async def process_answer(
     user[
         "waiting_for_answer"
     ] = False
+    user["answer_attempts"] = 0
 
     analytics = user.get("answer_analytics", [])
     analytics.append({
@@ -490,6 +512,14 @@ async def show_summary(
     )
 
     user["xp"] += 25
+
+    completed_lessons = user.get("completed_lessons", [])
+    active_lesson = user.get("active_lesson")
+
+    if active_lesson and active_lesson not in completed_lessons:
+        completed_lessons.append(active_lesson)
+
+    user["completed_lessons"] = completed_lessons
     user["lesson_finished"] = True
     user["lesson_started"] = False
     user["waiting_for_answer"] = False
