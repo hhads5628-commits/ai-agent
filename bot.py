@@ -181,6 +181,11 @@ async def handle(
 ):
 
     text = update.message.text
+    normalized_text = (
+        text.strip().lower()
+        if text
+        else ""
+    )
 
     chat_id = update.effective_chat.id
 
@@ -304,29 +309,42 @@ async def handle(
 
             return
 
-        user["lesson_step"] = 0
+        has_saved_lesson = (
+            user.get("current_lesson_data")
+            and user.get("lesson_step", 0) > 0
+            and not user.get("lesson_finished")
+        )
 
         user["lesson_started"] = True
-
         user["lesson_finished"] = False
-
         user["waiting_for_answer"] = False
 
-        user["weak_topics"] = []
+        if has_saved_lesson:
 
-        user["strengths"] = []
+            lesson = user["current_lesson_data"]
 
-        await update.message.reply_text(
-            "🧠 AI создаёт урок...\n\n"
-            "Это может занять 5-15 секунд."
-        )
+            await update.message.reply_text(
+                "📚 Нашёл сохранённый урок.\n"
+                "Продолжаем с последнего блока."
+            )
 
-        lesson = generate_lesson(
-            topic=active_lesson,
-            level=user["difficulty"]
-        )
+        else:
 
-        user["current_lesson_data"] = lesson
+            user["lesson_step"] = 0
+            user["weak_topics"] = []
+            user["strengths"] = []
+
+            await update.message.reply_text(
+                "🧠 AI создаёт урок...\n\n"
+                "Это может занять 5-15 секунд."
+            )
+
+            lesson = generate_lesson(
+                topic=active_lesson,
+                level=user["difficulty"]
+            )
+
+            user["current_lesson_data"] = lesson
 
         save_user(chat_id, user)
 
@@ -344,11 +362,15 @@ async def handle(
     # NEXT STEP
     # ======================
 
+    is_next_command = normalized_text in {
+        "➡️ далее",
+        "➡ далее",
+        "далее"
+    }
+
     if (
-        text == "➡️ далее"
-        and user.get(
-            "lesson_started"
-        )
+        is_next_command
+        and user.get("lesson_started")
     ):
 
         if not lesson:
