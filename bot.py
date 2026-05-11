@@ -362,11 +362,16 @@ async def handle(
     # NEXT STEP
     # ======================
 
-    is_next_command = normalized_text in {
-        "➡️ далее",
-        "➡ далее",
-        "далее"
-    }
+    cleaned_next_command = (
+        normalized_text
+        .replace("➡️", "")
+        .replace("➡", "")
+        .replace("​", "")
+        .replace("﻿", "")
+        .strip()
+    )
+
+    is_next_command = cleaned_next_command == "далее"
 
     if (
         is_next_command
