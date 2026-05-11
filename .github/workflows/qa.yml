@@ -1,0 +1,23 @@
+name: AI Product School QA
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Run QA suite
+        run: python tests/run_qa.py
+      - name: Upload QA report
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-report
+          path: |
+            reports/qa_report.txt
+            tests/last_qa_report.txt

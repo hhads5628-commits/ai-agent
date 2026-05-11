@@ -1,0 +1,189 @@
+================================
+AI PRODUCT SCHOOL QA REPORT
+===========================
+Generated (UTC): 2026-05-11T12:05:15.704808+00:00
+
+✅ beginner: onboarding
+✅ beginner: profile state
+✅ beginner: roadmap valid
+✅ beginner: lesson completed
+✅ beginner: xp updated
+✅ beginner: streak valid
+✅ beginner: achievements shape
+✅ beginner: memory valid
+✅ beginner: duplicate completion blocked
+✅ beginner: no frozen progression
+✅ junior: onboarding
+✅ junior: profile state
+✅ junior: roadmap valid
+✅ junior: lesson completed
+✅ junior: xp updated
+✅ junior: streak valid
+✅ junior: achievements shape
+✅ junior: memory valid
+✅ junior: duplicate completion blocked
+✅ junior: no frozen progression
+✅ strong_learner: onboarding
+✅ strong_learner: profile state
+✅ strong_learner: roadmap valid
+✅ strong_learner: lesson completed
+✅ strong_learner: xp updated
+✅ strong_learner: streak valid
+✅ strong_learner: achievements shape
+✅ strong_learner: memory valid
+✅ strong_learner: duplicate completion blocked
+✅ strong_learner: no frozen progression
+✅ weak_learner: onboarding
+✅ weak_learner: profile state
+✅ weak_learner: roadmap valid
+✅ weak_learner: lesson completed
+✅ weak_learner: xp updated
+✅ weak_learner: streak valid
+✅ weak_learner: achievements shape
+✅ weak_learner: memory valid
+✅ weak_learner: duplicate completion blocked
+✅ weak_learner: no frozen progression
+✅ inactive_user: onboarding
+✅ inactive_user: profile state
+✅ inactive_user: roadmap valid
+✅ inactive_user: lesson completed
+✅ inactive_user: xp updated
+✅ inactive_user: streak valid
+✅ inactive_user: achievements shape
+✅ inactive_user: memory valid
+✅ inactive_user: duplicate completion blocked
+✅ inactive_user: no frozen progression
+✅ confused_user: onboarding
+✅ confused_user: profile state
+✅ confused_user: roadmap valid
+✅ confused_user: lesson completed
+✅ confused_user: xp updated
+✅ confused_user: streak valid
+✅ confused_user: achievements shape
+✅ confused_user: memory valid
+✅ confused_user: duplicate completion blocked
+✅ confused_user: no frozen progression
+✅ speed_learner: onboarding
+✅ speed_learner: profile state
+✅ speed_learner: roadmap valid
+✅ speed_learner: lesson completed
+✅ speed_learner: xp updated
+✅ speed_learner: streak valid
+✅ speed_learner: achievements shape
+✅ speed_learner: memory valid
+✅ speed_learner: duplicate completion blocked
+✅ speed_learner: no frozen progression
+✅ edge_case_user: onboarding
+✅ edge_case_user: profile state
+✅ edge_case_user: roadmap valid
+✅ edge_case_user: lesson completed
+✅ edge_case_user: xp updated
+✅ edge_case_user: streak valid
+✅ edge_case_user: achievements shape
+✅ edge_case_user: memory valid
+✅ edge_case_user: duplicate completion blocked
+✅ edge_case_user: no frozen progression
+✅ beginner: onboarding
+✅ beginner: profile state
+✅ beginner: roadmap valid
+✅ beginner: lesson completed
+✅ beginner: xp updated
+✅ beginner: streak valid
+✅ beginner: achievements shape
+✅ beginner: memory valid
+✅ beginner: duplicate completion blocked
+✅ beginner: no frozen progression
+✅ junior: onboarding
+✅ junior: profile state
+✅ junior: roadmap valid
+✅ junior: lesson completed
+✅ junior: xp updated
+✅ junior: streak valid
+✅ junior: achievements shape
+✅ junior: memory valid
+✅ junior: duplicate completion blocked
+✅ junior: no frozen progression
+✅ strong_learner: onboarding
+✅ strong_learner: profile state
+✅ strong_learner: roadmap valid
+✅ strong_learner: lesson completed
+✅ strong_learner: xp updated
+✅ strong_learner: streak valid
+✅ strong_learner: achievements shape
+✅ strong_learner: memory valid
+✅ strong_learner: duplicate completion blocked
+✅ strong_learner: no frozen progression
+✅ weak_learner: onboarding
+✅ weak_learner: profile state
+✅ weak_learner: roadmap valid
+✅ weak_learner: lesson completed
+✅ weak_learner: xp updated
+✅ weak_learner: streak valid
+✅ weak_learner: achievements shape
+✅ weak_learner: memory valid
+✅ weak_learner: duplicate completion blocked
+✅ weak_learner: no frozen progression
+✅ inactive_user: onboarding
+✅ inactive_user: profile state
+✅ inactive_user: roadmap valid
+✅ inactive_user: lesson completed
+✅ inactive_user: xp updated
+✅ inactive_user: streak valid
+✅ inactive_user: achievements shape
+✅ inactive_user: memory valid
+✅ inactive_user: duplicate completion blocked
+✅ inactive_user: no frozen progression
+✅ confused_user: onboarding
+✅ confused_user: profile state
+✅ confused_user: roadmap valid
+✅ confused_user: lesson completed
+✅ confused_user: xp updated
+✅ confused_user: streak valid
+✅ confused_user: achievements shape
+✅ confused_user: memory valid
+✅ confused_user: duplicate completion blocked
+✅ confused_user: no frozen progression
+✅ speed_learner: onboarding
+✅ speed_learner: profile state
+✅ speed_learner: roadmap valid
+✅ speed_learner: lesson completed
+✅ speed_learner: xp updated
+✅ speed_learner: streak valid
+✅ speed_learner: achievements shape
+✅ speed_learner: memory valid
+✅ speed_learner: duplicate completion blocked
+✅ speed_learner: no frozen progression
+✅ edge_case_user: onboarding
+✅ edge_case_user: profile state
+✅ edge_case_user: roadmap valid
+✅ edge_case_user: lesson completed
+✅ edge_case_user: xp updated
+✅ edge_case_user: streak valid
+✅ edge_case_user: achievements shape
+✅ edge_case_user: memory valid
+✅ edge_case_user: duplicate completion blocked
+✅ edge_case_user: no frozen progression
+✅ lesson qa: logical_flow
+✅ lesson qa: case_quality
+✅ lesson qa: feedback_quality
+✅ lesson qa: repetition_ok
+✅ lesson qa: difficulty_balance
+✅ evaluator qa: correct_positive
+✅ evaluator qa: false_positive_guard
+✅ evaluator qa: false_negative_guard
+✅ evaluator qa: illogical_feedback_guard
+✅ evaluator qa: empty_response_handled
+✅ evaluator qa: non_empty_feedback
+✅ evaluator qa: non_repetitive_feedback
+✅ regression: onboarding
+✅ regression: roadmap
+✅ regression: lesson engine
+✅ regression: AI evaluator
+✅ regression: memory
+✅ regression: streak
+✅ regression: XP
+✅ regression: achievements
+
+Critical Issues: 0
+Warnings: 0
+QA Score: 100/100

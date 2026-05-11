@@ -1,3 +1,5 @@
+from debug.qa_logger import log_ai_decision, log_evaluation_score, log_lesson_transition
+
 MAX_LESSON_MESSAGE_LENGTH = 3500
 
 
@@ -26,6 +28,7 @@ async def continue_lesson(update, user, lesson):
     if block_type == "case":
         block_type = "practice"
     user["current_block"] = f"{step + 1}/{len(blocks)} • {block_type}"
+    log_lesson_transition(str(user.get("id", "unknown")), step, step + 1, block_type)
 
     if block_type in {"intro", "theory", "reflection", "summary"}:
         await update.message.reply_text(_safe_lesson_text(block.get("text", "")))
@@ -73,6 +76,9 @@ async def process_answer(update, user, text, lesson):
             user.setdefault("weak_topics", []).append(skill)
         feedback = block.get("fail_text", "⚠️ Нужно точнее. Попробуй указать контекст, мотивацию и ожидаемый прогресс.")
         await update.message.reply_text(feedback)
+
+    log_evaluation_score(str(user.get("id", "unknown")), skill, success, len(matched))
+    log_ai_decision(str(user.get("id", "unknown")), "answer_evaluated", {"skill": skill, "success": success})
 
     user["waiting_for_answer"] = False
     user["lesson_step"] += 1
