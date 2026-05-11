@@ -401,6 +401,22 @@ async def handle(
 
     if (
         is_next_command
+        and user.get("lesson_finished")
+        and not user.get("lesson_started")
+    ):
+
+        await update.message.reply_text(
+            "✅ Урок завершён. Отличная работа!\n\n"
+            "Хочешь начать следующий урок?\n"
+            "Нажми 🚀 начать обучение\n"
+            "или выбери тему через 📚 выбрать урок.",
+            reply_markup=get_main_keyboard(user)
+        )
+
+        return
+
+    if (
+        is_next_command
         and user.get("lesson_started")
     ):
 
