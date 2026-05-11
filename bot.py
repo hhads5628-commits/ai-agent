@@ -39,8 +39,28 @@ BOT_TOKEN = "8235831309:AAFvZtDc6FDDN1cZAO6LH61Dv_ByoVlXqaY"
 LESSONS = [
     "jtbd",
     "custdev",
-    "mvp"
+    "mvp",
+    "metrics",
+    "unit_economics",
+    "prioritization",
+    "roadmap_planning",
+    "retention",
+    "onboarding",
+    "ab_testing"
 ]
+
+LESSON_TITLES = {
+    "jtbd": "JTBD",
+    "custdev": "CUSTDEV",
+    "mvp": "MVP",
+    "metrics": "PRODUCT METRICS",
+    "unit_economics": "UNIT ECONOMICS",
+    "prioritization": "PRIORITIZATION",
+    "roadmap_planning": "ROADMAP PLANNING",
+    "retention": "RETENTION",
+    "onboarding": "ONBOARDING",
+    "ab_testing": "A/B TESTING"
+}
 
 # ======================
 # XP
@@ -98,7 +118,7 @@ def get_main_keyboard(user):
         [
             ["🚀 начать обучение"],
             ["📊 прогресс", "👤 профиль"],
-            ["🗺 roadmap"],
+            ["🗺 roadmap", "📚 выбрать урок"],
             ["⚙️ настройки обучения"]
         ],
         resize_keyboard=True
@@ -133,7 +153,7 @@ async def show_home(
             f"📚 Продолжаем обучение\n\n"
 
             f"Текущий урок:\n"
-            f"{active_lesson.upper()}\n\n"
+            f"{LESSON_TITLES.get(active_lesson, active_lesson.upper())}\n\n"
 
             f"📍 Последний блок:\n"
             f"{user['current_block']}\n\n"
@@ -150,7 +170,7 @@ async def show_home(
             f"🏠 AI Product School\n\n"
 
             f"📚 Текущий урок:\n"
-            f"{active_lesson.upper()}\n\n"
+            f"{LESSON_TITLES.get(active_lesson, active_lesson.upper())}\n\n"
 
             f"🎓 Формат:\n"
             f"• теория как в Практикуме\n"
@@ -300,7 +320,7 @@ async def handle(
                 f"📚 Урок уже активен\n\n"
 
                 f"Текущий урок:\n"
-                f"{active_lesson.upper()}\n\n"
+                f"{LESSON_TITLES.get(active_lesson, active_lesson.upper())}\n\n"
 
                 f"📍 Последний блок:\n"
                 f"{user['current_block']}\n\n"
@@ -425,7 +445,7 @@ async def handle(
 
             f"⏸ Урок сохранён\n\n"
 
-            f"📚 {active_lesson.upper()}\n"
+            f"📚 {LESSON_TITLES.get(active_lesson, active_lesson.upper())}\n"
             f"📍 Последний блок:\n"
             f"{user['current_block']}\n\n"
 
@@ -463,6 +483,27 @@ async def handle(
 
         return
 
+
+    # ======================
+    # LESSON PICKER
+    # ======================
+
+    if text == "📚 выбрать урок":
+
+        options = "\n".join(
+            [f"• {name}" for name in LESSONS]
+        )
+
+        await update.message.reply_text(
+            "📚 Доступно 10 уроков.\n"
+            "Отправь название урока одним словом:\n\n"
+            f"{options}\n\n"
+            "Пример: custdev",
+            reply_markup=get_main_keyboard(user)
+        )
+
+        return
+
     # ======================
     # SELECT LESSON
     # ======================
@@ -486,7 +527,7 @@ async def handle(
         await update.message.reply_text(
 
             f"📚 Урок выбран:\n"
-            f"{text.upper()}\n\n"
+            f"{LESSON_TITLES.get(text.lower(), text.upper())}\n\n"
 
             f"🚀 Нажми:\n"
             f"начать обучение",
@@ -526,7 +567,7 @@ async def handle(
             f"🏆 {get_rank(user['xp'])}\n\n"
 
             f"📚 Активный урок:\n"
-            f"{active_lesson.upper()}\n\n"
+            f"{LESSON_TITLES.get(active_lesson, active_lesson.upper())}\n\n"
 
             f"📚 Уровень:\n"
             f"{user['difficulty']}\n\n"
@@ -574,7 +615,7 @@ async def handle(
             if lesson_name == active_lesson:
 
                 roadmap += (
-                    f"🔄 {lesson_name.upper()}\n"
+                    f"🔄 {LESSON_TITLES.get(lesson_name, lesson_name.upper())}\n"
                 )
 
                 continue
@@ -584,13 +625,13 @@ async def handle(
             ]:
 
                 roadmap += (
-                    f"✅ {lesson_name.upper()}\n"
+                    f"✅ {LESSON_TITLES.get(lesson_name, lesson_name.upper())}\n"
                 )
 
             else:
 
                 roadmap += (
-                    f"⚪ {lesson_name.upper()}\n"
+                    f"⚪ {LESSON_TITLES.get(lesson_name, lesson_name.upper())}\n"
                 )
 
         roadmap += (
