@@ -7,6 +7,11 @@ def _safe_lesson_text(text):
     if not isinstance(text, str):
         text = str(text or "")
 
+    text = text.strip()
+
+    if not text:
+        return "⚠️ Пустой блок урока. Переходим дальше."
+
     if len(text) <= MAX_LESSON_MESSAGE_LENGTH:
         return text
 
@@ -146,6 +151,20 @@ async def continue_lesson(
     # =====================================================
 
     if block_type == "quiz":
+        question_text = _safe_lesson_text(
+            current_block.get(
+                "question",
+                ""
+            )
+        )
+
+        if question_text.startswith("⚠️ Пустой блок урока"):
+            await update.message.reply_text(
+                "⚠️ Вопрос в этом блоке пустой. Пропускаю дальше."
+            )
+            user["lesson_step"] += 1
+            await continue_lesson(update, user, lesson)
+            return
 
         user[
             "waiting_for_answer"
@@ -156,11 +175,7 @@ async def continue_lesson(
         ] = "quiz"
 
         await update.message.reply_text(
-
-            _safe_lesson_text(current_block.get(
-                "question",
-                ""
-            ))
+            question_text
         )
 
         return
@@ -170,6 +185,20 @@ async def continue_lesson(
     # =====================================================
 
     if block_type == "practice":
+        task_text = _safe_lesson_text(
+            current_block.get(
+                "task",
+                ""
+            )
+        )
+
+        if task_text.startswith("⚠️ Пустой блок урока"):
+            await update.message.reply_text(
+                "⚠️ Практическое задание пустое. Пропускаю дальше."
+            )
+            user["lesson_step"] += 1
+            await continue_lesson(update, user, lesson)
+            return
 
         user[
             "waiting_for_answer"
@@ -180,11 +209,7 @@ async def continue_lesson(
         ] = "practice"
 
         await update.message.reply_text(
-
-            _safe_lesson_text(current_block.get(
-                "task",
-                ""
-            ))
+            task_text
         )
 
         return
