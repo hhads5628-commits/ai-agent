@@ -490,6 +490,14 @@ async def show_summary(
     )
 
     user["xp"] += 25
+
+    completed_lessons = user.get("completed_lessons", [])
+    active_lesson = user.get("active_lesson")
+
+    if active_lesson and active_lesson not in completed_lessons:
+        completed_lessons.append(active_lesson)
+
+    user["completed_lessons"] = completed_lessons
     user["lesson_finished"] = True
     user["lesson_started"] = False
     user["waiting_for_answer"] = False
