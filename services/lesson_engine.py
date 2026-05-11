@@ -17,6 +17,17 @@ def _safe_lesson_text(text):
 
     return text[:MAX_LESSON_MESSAGE_LENGTH - 1] + "…"
 
+
+def _normalize_keywords(raw_keywords):
+    if not isinstance(raw_keywords, list):
+        return []
+
+    return [
+        str(word).strip().lower()
+        for word in raw_keywords
+        if str(word).strip()
+    ]
+
 # =====================================================
 # UNIVERSAL LESSON ENGINE
 # =====================================================
@@ -268,10 +279,25 @@ async def process_answer(
         step
     ]
 
-    keywords = current_block.get(
-        "keywords",
-        []
+    keywords = _normalize_keywords(
+        current_block.get(
+            "keywords",
+            []
+        )
     )
+
+    answer_text = (text or "").lower()
+    matched_keywords = [
+        word
+        for word in keywords
+        if word in answer_text
+    ]
+
+    missed_keywords = [
+        word
+        for word in keywords
+        if word not in answer_text
+    ]
 
     success = False
 
@@ -281,7 +307,7 @@ async def process_answer(
 
     for word in keywords:
 
-        if word.lower() in text.lower():
+        if word in answer_text:
 
             success = True
             break
@@ -292,13 +318,18 @@ async def process_answer(
 
     if success:
 
-        await update.message.reply_text(
+        feedback_text = _safe_lesson_text(current_block.get(
+            "success_text",
+            "🔥 Хороший ответ"
+        ))
 
-            _safe_lesson_text(current_block.get(
-                "success_text",
-                "🔥 Хороший ответ"
-            ))
-        )
+        if keywords:
+            feedback_text += (
+                "\n\n🧩 Почему ответ засчитан:\n"
+                f"Совпало опорных идей: {len(matched_keywords)}/{len(keywords)}"
+            )
+
+        await update.message.reply_text(feedback_text)
 
         strengths = user.get(
             "strengths",
@@ -322,13 +353,19 @@ async def process_answer(
 
     else:
 
-        await update.message.reply_text(
+        feedback_text = _safe_lesson_text(current_block.get(
+            "fail_text",
+            "⚠️ Попробуй ещё глубже"
+        ))
 
-            _safe_lesson_text(current_block.get(
-                "fail_text",
-                "⚠️ Попробуй ещё глубже"
-            ))
-        )
+        if keywords:
+            expected = ", ".join(missed_keywords[:4])
+            feedback_text += (
+                "\n\n📌 Что усилить в ответе:\n"
+                f"Добавь идеи: {expected}"
+            )
+
+        await update.message.reply_text(feedback_text)
 
         weak_topics = user.get(
             "weak_topics",
@@ -353,6 +390,15 @@ async def process_answer(
     user[
         "waiting_for_answer"
     ] = False
+
+    analytics = user.get("answer_analytics", [])
+    analytics.append({
+        "block_type": user.get("current_block_type", "unknown"),
+        "success": success,
+        "matched": len(matched_keywords),
+        "expected": len(keywords)
+    })
+    user["answer_analytics"] = analytics
 
     user[
         "lesson_step"
@@ -395,6 +441,26 @@ async def show_summary(
         else "Пока нет"
     )
 
+    analytics = user.get("answer_analytics", [])
+    answered = len(analytics)
+    passed = len([
+        row for row in analytics
+        if row.get("success")
+    ])
+    avg_coverage = 0
+
+    if answered:
+        coverage_sum = 0
+        for row in analytics:
+            expected = row.get("expected", 0)
+            matched = row.get("matched", 0)
+            if expected > 0:
+                coverage_sum += int((matched / expected) * 100)
+            else:
+                coverage_sum += 100
+
+        avg_coverage = int(coverage_sum / answered)
+
     await update.message.reply_text(
 
         _safe_lesson_text(
@@ -407,6 +473,10 @@ async def show_summary(
 
         f"⚠️ Слабые стороны:\n"
         f"• {weak_text}\n\n"
+
+        "🧠 Аналитика ответов:\n"
+        f"• Засчитано: {passed}/{answered}\n"
+        f"• Средняя полнота ответа: {avg_coverage}%\n\n"
 
         "✅ Что было в уроке:\n"
         "• большая теория\n"
@@ -425,3 +495,4 @@ async def show_summary(
     user["waiting_for_answer"] = False
     user["current_lesson_data"] = None
     user["current_block"] = "Завершён"
+    user["answer_analytics"] = []
