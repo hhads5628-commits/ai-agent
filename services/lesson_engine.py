@@ -299,18 +299,19 @@ async def process_answer(
         if word not in answer_text
     ]
 
-    success = False
+    # Require meaningful coverage: at least half of the
+    # expected ideas (rounded up) for keyword-based blocks.
+    # If no keywords are configured, keep backward-compatible
+    # behavior and accept any non-empty answer.
+    min_required = 1
+    if keywords:
+        min_required = max(1, (len(keywords) + 1) // 2)
 
-    # =====================================================
-    # KEYWORD CHECK
-    # =====================================================
-
-    for word in keywords:
-
-        if word in answer_text:
-
-            success = True
-            break
+    success = (
+        len(matched_keywords) >= min_required
+        if keywords
+        else bool(answer_text.strip())
+    )
 
     # =====================================================
     # SUCCESS
@@ -324,9 +325,14 @@ async def process_answer(
         ))
 
         if keywords:
+            matched = ", ".join(matched_keywords[:5]) or "—"
+            missing = ", ".join(missed_keywords[:5]) or "—"
             feedback_text += (
                 "\n\n🧩 Почему ответ засчитан:\n"
-                f"Совпало опорных идей: {len(matched_keywords)}/{len(keywords)}"
+                f"Совпало опорных идей: {len(matched_keywords)}/{len(keywords)} "
+                f"(минимум: {min_required})\n"
+                f"✅ Учтено: {matched}\n"
+                f"➡️ Для усиления добавь: {missing}"
             )
 
         await update.message.reply_text(feedback_text)
@@ -359,10 +365,14 @@ async def process_answer(
         ))
 
         if keywords:
-            expected = ", ".join(missed_keywords[:4])
+            matched = ", ".join(matched_keywords[:5]) or "пока нет точных попаданий"
+            expected = ", ".join(missed_keywords[:5]) or "все ключевые идеи уже упомянуты"
             feedback_text += (
                 "\n\n📌 Что усилить в ответе:\n"
-                f"Добавь идеи: {expected}"
+                f"Покрытие опорных идей: {len(matched_keywords)}/{len(keywords)} "
+                f"(нужно минимум: {min_required})\n"
+                f"✅ Уже есть: {matched}\n"
+                f"➕ Добавь идеи: {expected}"
             )
 
         await update.message.reply_text(feedback_text)
