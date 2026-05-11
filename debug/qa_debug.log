@@ -1,0 +1,16 @@
+{"ts": "2026-05-11T11:52:24.675957+00:00", "event_type": "user_start", "payload": {"user_type": "beginner", "difficulty": "beginner"}}
+{"ts": "2026-05-11T11:52:24.676280+00:00", "event_type": "evaluation", "payload": {"user_type": "beginner", "block": "quiz", "skill": "jtbd", "success": true}}
+{"ts": "2026-05-11T11:52:24.676372+00:00", "event_type": "evaluation", "payload": {"user_type": "beginner", "block": "practice", "skill": "metrics", "success": true}}
+{"ts": "2026-05-11T11:52:24.676427+00:00", "event_type": "memory_update", "payload": {"user_type": "beginner", "memory": {"weak_topics": [], "strong_topics": ["jtbd", "metrics"], "mistakes": [], "last_activity": ""}}}
+{"ts": "2026-05-11T11:52:24.676537+00:00", "event_type": "user_start", "payload": {"user_type": "junior", "difficulty": "junior"}}
+{"ts": "2026-05-11T11:52:24.676674+00:00", "event_type": "evaluation", "payload": {"user_type": "junior", "block": "quiz", "skill": "jtbd", "success": true}}
+{"ts": "2026-05-11T11:52:24.676735+00:00", "event_type": "evaluation", "payload": {"user_type": "junior", "block": "practice", "skill": "metrics", "success": true}}
+{"ts": "2026-05-11T11:52:24.676798+00:00", "event_type": "memory_update", "payload": {"user_type": "junior", "memory": {"weak_topics": [], "strong_topics": ["jtbd", "metrics"], "mistakes": [], "last_activity": ""}}}
+{"ts": "2026-05-11T11:52:24.676913+00:00", "event_type": "user_start", "payload": {"user_type": "strong_learner", "difficulty": "middle"}}
+{"ts": "2026-05-11T11:52:24.677008+00:00", "event_type": "evaluation", "payload": {"user_type": "strong_learner", "block": "quiz", "skill": "jtbd", "success": true}}
+{"ts": "2026-05-11T11:52:24.677058+00:00", "event_type": "evaluation", "payload": {"user_type": "strong_learner", "block": "practice", "skill": "metrics", "success": true}}
+{"ts": "2026-05-11T11:52:24.677100+00:00", "event_type": "memory_update", "payload": {"user_type": "strong_learner", "memory": {"weak_topics": [], "strong_topics": ["jtbd", "metrics"], "mistakes": [], "last_activity": ""}}}
+{"ts": "2026-05-11T11:52:24.677175+00:00", "event_type": "user_start", "payload": {"user_type": "weak_learner", "difficulty": "beginner"}}
+{"ts": "2026-05-11T11:52:24.677264+00:00", "event_type": "evaluation", "payload": {"user_type": "weak_learner", "block": "quiz", "skill": "jtbd", "success": true}}
+{"ts": "2026-05-11T11:52:24.677316+00:00", "event_type": "evaluation", "payload": {"user_type": "weak_learner", "block": "practice", "skill": "metrics", "success": true}}
+{"ts": "2026-05-11T11:52:24.677430+00:00", "event_type": "memory_update", "payload": {"user_type": "weak_learner", "memory": {"weak_topics": [], "strong_topics": ["jtbd", "metrics"], "mistakes": [], "last_activity": ""}}}
