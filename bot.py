@@ -213,6 +213,9 @@ async def handle(
     if "strengths" not in user:
         user["strengths"] = []
 
+    if "answer_analytics" not in user:
+        user["answer_analytics"] = []
+
     if "lesson_started" not in user:
         user["lesson_started"] = False
 
