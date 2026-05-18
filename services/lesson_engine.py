@@ -28,6 +28,121 @@ def _normalize_keywords(raw_keywords):
         if str(word).strip()
     ]
 
+
+def _build_answer_coach_feedback(
+    answer_text,
+    matched_keywords=None,
+    missed_keywords=None
+):
+    text = (answer_text or "").strip().lower()
+    if not text:
+        return ""
+    matched_keywords = matched_keywords or []
+    missed_keywords = missed_keywords or []
+
+    direction = [
+        "\n\n🧭 Куда двигаемся дальше:"
+    ]
+
+    if matched_keywords:
+        direction.append(
+            "• Ты уже в верном направлении: есть базовые элементы ответа."
+        )
+
+    if missed_keywords:
+        direction.append(
+            "• Следующий шаг: добавь недостающие элементы по одному, "
+            "а не пытайся переписать всё с нуля."
+        )
+        direction.append(
+            "• План на 1 итерацию: выбери 2 пункта из «Добавь идеи» "
+            "и встрои их в короткий сценарий."
+        )
+
+    direction.append(
+        "• Формула сильного ответа: "
+        "контекст пользователя → конкретное действие → ручная проверка ценности."
+    )
+
+    question_like = text.count("?")
+    if question_like == 0:
+        direction.append(
+            "• Добавь 1-2 конкретных вопроса к пользователю, "
+            "чтобы ответ был проверяемым."
+        )
+
+    if not missed_keywords and matched_keywords:
+        direction_block = (
+            "\n\n🧭 Куда двигаемся дальше:\n"
+            "• Отлично, вектор верный. Добавь больше конкретики из реального опыта пользователя."
+        )
+    else:
+        direction_block = "\n".join(direction)
+
+    lines = []
+    questions = [part.strip() for part in text.split("?") if part.strip()]
+    question_count = text.count("?")
+    open_starts = (
+        "что", "как", "почему", "зачем",
+        "опиши", "расскажи", "вспомни", "когда"
+    )
+    closed_markers = (
+        "да или нет", "да/нет", "купил бы", "будете ли",
+        "будешь ли", "хотели бы", "нравится ли"
+    )
+    emotion_markers = (
+        "бесит", "бесило", "злит", "раздраж", "обидно",
+        "стресс", "тревог", "рад", "доволен", "устал"
+    )
+
+    open_questions = 0
+    closed_questions = 0
+    for raw in questions:
+        trimmed = raw.strip(" .,!?:;")
+        if trimmed.startswith(open_starts):
+            open_questions += 1
+        if any(marker in trimmed for marker in closed_markers) or " ли " in f" {trimmed} ":
+            closed_questions += 1
+
+    if question_count:
+        lines.append(f"• Вопросов в ответе: {question_count}")
+        lines.append(f"• Открытых формулировок: {open_questions}")
+    if closed_questions:
+        lines.append("• Вижу вопросы, на которые можно ответить «да/нет». Для CustDev лучше переформулировать их в открытые.")
+    if "последний" not in text and "в прошлый" not in text:
+        lines.append("• Добавь вопрос про реальный прошлый опыт: «Расскажи про последний раз, когда…».")
+    if not any(marker in text for marker in emotion_markers):
+        lines.append("• Добавь вопрос про эмоции: «Что в этом процессе бесило/злило сильнее всего?».")
+
+    teacher_block = ""
+    if lines:
+        teacher_block = "\n\n🧠 Разбор как преподаватель:\n" + "\n".join(lines)
+
+    return direction_block + teacher_block
+
+
+def _build_final_mini_test():
+    return (
+        "\n\n📝 Мини‑тест (4 вопроса)\n"
+        "1) Какой вопрос лучше для CustDev?\n"
+        "A) Ты бы купил этот продукт?\n"
+        "B) Расскажи про последний раз, когда ты решал эту задачу.\n"
+        "C) Тебе в целом нравится идея?\n\n"
+        "2) Что лучше всего показывает настоящую боль пользователя?\n"
+        "A) Вежливое согласие\n"
+        "B) Общие рассуждения\n"
+        "C) Сильные эмоции и конкретные примеры\n\n"
+        "3) Что делать после 2 интервью?\n"
+        "A) Срочно строить продукт\n"
+        "B) Дождаться паттернов на серии интервью\n"
+        "C) Игнорировать обратную связь\n\n"
+        "4) MVP на старте — это:\n"
+        "A) Минимальная ценность + ручная проверка спроса\n"
+        "B) Сразу сложный AI‑продукт\n"
+        "C) Полный функционал до первых пользователей\n\n"
+        "Отправь ответы в формате: 1B, 2C, 3B, 4A."
+    )
+
 # =====================================================
 # UNIVERSAL LESSON ENGINE
 # =====================================================
@@ -342,6 +457,11 @@ async def process_answer(
                 f"✅ Учтено: {matched}\n"
                 f"➡️ Для усиления добавь: {missing}"
             )
+        feedback_text += _build_answer_coach_feedback(
+            answer_text=answer_text,
+            matched_keywords=matched_keywords,
+            missed_keywords=missed_keywords
+        )
 
         await update.message.reply_text(feedback_text)
 
@@ -385,6 +505,11 @@ async def process_answer(
                 f"✅ Уже есть: {matched}\n"
                 f"➕ Добавь идеи: {expected}"
             )
+        feedback_text += _build_answer_coach_feedback(
+            answer_text=answer_text,
+            matched_keywords=matched_keywords,
+            missed_keywords=missed_keywords
+        )
 
         feedback_text += (
             "\n\n💬 Напиши новый ответ, и я проверю его ещё раз."
@@ -518,7 +643,7 @@ async def show_summary(
         "• анализ ответов\n\n"
 
             "⭐ +25 XP"
-        )
+        ) + _build_final_mini_test()
     )
 
     user["xp"] += 25
