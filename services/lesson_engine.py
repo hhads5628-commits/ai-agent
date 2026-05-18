@@ -28,6 +28,68 @@ def _normalize_keywords(raw_keywords):
         if str(word).strip()
     ]
 
+
+def _build_answer_coach_feedback(answer_text):
+    text = (answer_text or "").strip().lower()
+    if not text:
+        return ""
+
+    lines = []
+    questions = [part.strip() for part in text.split("?") if part.strip()]
+    question_count = text.count("?")
+
+    open_starts = (
+        "что", "как", "почему", "зачем",
+        "опиши", "расскажи", "вспомни", "когда"
+    )
+    closed_markers = (
+        "да или нет", "да/нет", "купил бы", "будете ли",
+        "будешь ли", "хотели бы", "нравится ли"
+    )
+    emotion_markers = (
+        "бесит", "бесило", "злит", "раздраж", "обидно",
+        "стресс", "тревог", "рад", "доволен", "устал"
+    )
+
+    open_questions = 0
+    closed_questions = 0
+
+    for raw in questions:
+        trimmed = raw.strip(" .,!?:;")
+        starts_open = trimmed.startswith(open_starts)
+        has_closed = any(marker in trimmed for marker in closed_markers) or " ли " in f" {trimmed} "
+        if starts_open:
+            open_questions += 1
+        if has_closed:
+            closed_questions += 1
+
+    if question_count:
+        lines.append(f"• Вопросов в ответе: {question_count}")
+        lines.append(f"• Открытых формулировок: {open_questions}")
+
+    if closed_questions:
+        lines.append(
+            "• Вижу вопросы, на которые можно ответить «да/нет». "
+            "Для CustDev лучше переформулировать их в открытые."
+        )
+
+    if "последний" not in text and "в прошлый" not in text:
+        lines.append(
+            "• Добавь вопрос про реальный прошлый опыт: "
+            "«Расскажи про последний раз, когда…»."
+        )
+
+    if not any(marker in text for marker in emotion_markers):
+        lines.append(
+            "• Добавь вопрос про эмоции: "
+            "«Что в этом процессе бесило/злило сильнее всего?»."
+        )
+
+    if not lines:
+        return ""
+
+    return "\n\n🧠 Разбор как преподаватель:\n" + "\n".join(lines)
+
 # =====================================================
 # UNIVERSAL LESSON ENGINE
 # =====================================================
@@ -342,6 +404,7 @@ async def process_answer(
                 f"✅ Учтено: {matched}\n"
                 f"➡️ Для усиления добавь: {missing}"
             )
+        feedback_text += _build_answer_coach_feedback(answer_text)
 
         await update.message.reply_text(feedback_text)
 
@@ -385,6 +448,7 @@ async def process_answer(
                 f"✅ Уже есть: {matched}\n"
                 f"➕ Добавь идеи: {expected}"
             )
+        feedback_text += _build_answer_coach_feedback(answer_text)
 
         feedback_text += (
             "\n\n💬 Напиши новый ответ, и я проверю его ещё раз."
