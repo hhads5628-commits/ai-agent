@@ -79,10 +79,6 @@ def _build_answer_coach_feedback(
         )
     else:
         direction_block = "\n".join(direction)
-def _build_answer_coach_feedback(answer_text):
-    text = (answer_text or "").strip().lower()
-    if not text:
-        return ""
 
     lines = []
     questions = [part.strip() for part in text.split("?") if part.strip()]
@@ -103,13 +99,6 @@ def _build_answer_coach_feedback(answer_text):
 
     open_questions = 0
     closed_questions = 0
- 
-    for raw in questions:
-        trimmed = raw.strip(" .,!?:;")
-        if trimmed.startswith(open_starts):
-            open_questions += 1
-        if any(marker in trimmed for marker in closed_markers) or " ли " in f" {trimmed} ":
-
 
     for raw in questions:
         trimmed = raw.strip(" .,!?:;")
@@ -118,7 +107,6 @@ def _build_answer_coach_feedback(answer_text):
         if starts_open:
             open_questions += 1
         if has_closed:
-
             closed_questions += 1
 
     if question_count:
@@ -182,7 +170,7 @@ def _build_final_mini_test():
     if not lines:
         return ""
 
-    return "\n\n🧠 Разбор как преподаватель:\n" + "\n".join(lines) main
+    return "\n\n🧠 Разбор как преподаватель:\n" + "\n".join(lines)
 
 # 
 # UNIVERSAL LESSON ENGINE
@@ -505,8 +493,6 @@ async def process_answer(
             missed_keywords=missed_keywords
         )
 
-        feedback_text += _build_answer_coach_feedback(answer_text) main
-
         await update.message.reply_text(feedback_text)
 
         strengths = user.get(
@@ -555,8 +541,6 @@ async def process_answer(
             matched_keywords=matched_keywords,
             missed_keywords=missed_keywords
         )
-
-        feedback_text += _build_answer_coach_feedback(answer_text)
 
         feedback_text += (
             "\n\n💬 Напиши новый ответ, и я проверю его ещё раз."
