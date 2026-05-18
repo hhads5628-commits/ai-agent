@@ -31,12 +31,14 @@ def _normalize_keywords(raw_keywords):
 
 def _build_answer_coach_feedback(
     answer_text,
-    matched_keywords,
-    missed_keywords
+    matched_keywords=None,
+    missed_keywords=None
 ):
     text = (answer_text or "").strip().lower()
     if not text:
         return ""
+    matched_keywords = matched_keywords or []
+    missed_keywords = missed_keywords or []
 
     direction = [
         "\n\n🧭 Куда двигаемся дальше:"
@@ -455,11 +457,11 @@ async def process_answer(
                 f"✅ Учтено: {matched}\n"
                 f"➡️ Для усиления добавь: {missing}"
             )
-            feedback_text += _build_answer_coach_feedback(
-                answer_text=answer_text,
-                matched_keywords=matched_keywords,
-                missed_keywords=missed_keywords
-            )
+        feedback_text += _build_answer_coach_feedback(
+            answer_text=answer_text,
+            matched_keywords=matched_keywords,
+            missed_keywords=missed_keywords
+        )
 
         await update.message.reply_text(feedback_text)
 
@@ -503,11 +505,11 @@ async def process_answer(
                 f"✅ Уже есть: {matched}\n"
                 f"➕ Добавь идеи: {expected}"
             )
-            feedback_text += _build_answer_coach_feedback(
-                answer_text=answer_text,
-                matched_keywords=matched_keywords,
-                missed_keywords=missed_keywords
-            )
+        feedback_text += _build_answer_coach_feedback(
+            answer_text=answer_text,
+            matched_keywords=matched_keywords,
+            missed_keywords=missed_keywords
+        )
 
         feedback_text += (
             "\n\n💬 Напиши новый ответ, и я проверю его ещё раз."
