@@ -29,6 +29,7 @@ def _normalize_keywords(raw_keywords):
     ]
 
 
+codex/improve-custdev-interview-techniques-6lvye1
 def _build_answer_coach_feedback(
     answer_text,
     matched_keywords=None,
@@ -78,10 +79,19 @@ def _build_answer_coach_feedback(
         )
     else:
         direction_block = "\n".join(direction)
+def _build_answer_coach_feedback(answer_text):
+    text = (answer_text or "").strip().lower()
+    if not text:
+        return ""
+ main
 
     lines = []
     questions = [part.strip() for part in text.split("?") if part.strip()]
     question_count = text.count("?")
+ codex/improve-custdev-interview-techniques-6lvye1
+
+
+ main
     open_starts = (
         "что", "как", "почему", "зачем",
         "опиши", "расскажи", "вспомни", "когда"
@@ -97,16 +107,28 @@ def _build_answer_coach_feedback(
 
     open_questions = 0
     closed_questions = 0
+ codex/improve-custdev-interview-techniques-6lvye1
     for raw in questions:
         trimmed = raw.strip(" .,!?:;")
         if trimmed.startswith(open_starts):
             open_questions += 1
         if any(marker in trimmed for marker in closed_markers) or " ли " in f" {trimmed} ":
+
+
+    for raw in questions:
+        trimmed = raw.strip(" .,!?:;")
+        starts_open = trimmed.startswith(open_starts)
+        has_closed = any(marker in trimmed for marker in closed_markers) or " ли " in f" {trimmed} "
+        if starts_open:
+            open_questions += 1
+        if has_closed:
+ main
             closed_questions += 1
 
     if question_count:
         lines.append(f"• Вопросов в ответе: {question_count}")
         lines.append(f"• Открытых формулировок: {open_questions}")
+codex/improve-custdev-interview-techniques-6lvye1
     if closed_questions:
         lines.append("• Вижу вопросы, на которые можно ответить «да/нет». Для CustDev лучше переформулировать их в открытые.")
     if "последний" not in text and "в прошлый" not in text:
@@ -143,9 +165,32 @@ def _build_final_mini_test():
         "Отправь ответы в формате: 1B, 2C, 3B, 4A."
     )
 
-# =====================================================
+    if closed_questions:
+        lines.append(
+            "• Вижу вопросы, на которые можно ответить «да/нет». "
+            "Для CustDev лучше переформулировать их в открытые."
+        )
+
+    if "последний" not in text and "в прошлый" not in text:
+        lines.append(
+            "• Добавь вопрос про реальный прошлый опыт: "
+            "«Расскажи про последний раз, когда…»."
+        )
+
+    if not any(marker in text for marker in emotion_markers):
+        lines.append(
+            "• Добавь вопрос про эмоции: "
+            "«Что в этом процессе бесило/злило сильнее всего?»."
+        )
+
+    if not lines:
+        return ""
+
+    return "\n\n🧠 Разбор как преподаватель:\n" + "\n".join(lines) main
+
+# 
 # UNIVERSAL LESSON ENGINE
-# =====================================================
+# 
 #
 # Этот engine НЕ зависит от темы.
 #
@@ -167,9 +212,9 @@ def _build_final_mini_test():
 #
 # =====================================================
 
-# =====================================================
+# 
 # CONTINUE LESSON
-# =====================================================
+# 
 
 async def continue_lesson(
     update,
@@ -361,9 +406,9 @@ async def continue_lesson(
 
     return
 
-# =====================================================
+# 
 # PROCESS ANSWER
-# =====================================================
+#
 
 async def process_answer(
     update,
@@ -436,9 +481,9 @@ async def process_answer(
         else bool(answer_text.strip())
     )
 
-    # =====================================================
+    # 
     # SUCCESS
-    # =====================================================
+    # 
 
     if success:
 
@@ -457,11 +502,14 @@ async def process_answer(
                 f"✅ Учтено: {matched}\n"
                 f"➡️ Для усиления добавь: {missing}"
             )
+ codex/improve-custdev-interview-techniques-6lvye1
         feedback_text += _build_answer_coach_feedback(
             answer_text=answer_text,
             matched_keywords=matched_keywords,
             missed_keywords=missed_keywords
         )
+
+        feedback_text += _build_answer_coach_feedback(answer_text) main
 
         await update.message.reply_text(feedback_text)
 
@@ -481,9 +529,9 @@ async def process_answer(
             "strengths"
         ] = strengths
 
-    # =====================================================
+    # 
     # FAIL
-    # =====================================================
+    # 
 
     else:
 
@@ -505,11 +553,15 @@ async def process_answer(
                 f"✅ Уже есть: {matched}\n"
                 f"➕ Добавь идеи: {expected}"
             )
+ codex/improve-custdev-interview-techniques-6lvye1
         feedback_text += _build_answer_coach_feedback(
             answer_text=answer_text,
             matched_keywords=matched_keywords,
             missed_keywords=missed_keywords
         )
+
+        feedback_text += _build_answer_coach_feedback(answer_text)
+ main
 
         feedback_text += (
             "\n\n💬 Напиши новый ответ, и я проверю его ещё раз."
