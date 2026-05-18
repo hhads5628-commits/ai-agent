@@ -28,6 +28,122 @@ def _normalize_keywords(raw_keywords):
         if str(word).strip()
     ]
 
+
+def _build_direction_feedback(
+    answer_text,
+    matched_keywords,
+    missed_keywords
+):
+    text = (answer_text or "").strip().lower()
+    if not text:
+        return ""
+
+    direction = [
+        "\n\n🧭 Куда двигаемся дальше:"
+    ]
+
+    if matched_keywords:
+        direction.append(
+            "• Ты уже в верном направлении: есть базовые элементы ответа."
+        )
+
+    if missed_keywords:
+        direction.append(
+            "• Следующий шаг: добавь недостающие элементы по одному, "
+            "а не пытайся переписать всё с нуля."
+        )
+        direction.append(
+            "• План на 1 итерацию: выбери 2 пункта из «Добавь идеи» "
+            "и встрои их в короткий сценарий."
+        )
+
+    direction.append(
+        "• Формула сильного ответа: "
+        "контекст пользователя → конкретное действие → ручная проверка ценности."
+    )
+
+    question_like = text.count("?")
+    if question_like == 0:
+        direction.append(
+            "• Добавь 1-2 конкретных вопроса к пользователю, "
+            "чтобы ответ был проверяемым."
+        )
+
+    if not missed_keywords and matched_keywords:
+        return "\n\n🧭 Куда двигаемся дальше:\n• Отлично, вектор верный. Добавь больше конкретики из реального опыта пользователя."
+
+    return "\n".join(direction)
+
+
+def _build_teacher_style_feedback(answer_text):
+    text = (answer_text or "").strip()
+    lowered = text.lower()
+    if not text:
+        return ""
+
+    strengths = []
+    weak_points = []
+    next_steps = []
+
+    if "?" in text:
+        strengths.append("есть вопросы — ты не просто декларируешь, а исследуешь")
+    else:
+        weak_points.append("ответ без вопросов: сложно проверить гипотезу на реальных людях")
+        next_steps.append("добавь минимум 2 открытых вопроса, начинающихся с «как», «что», «расскажи»")
+
+    past_markers = ["последний раз", "недавно", "в прошлый", "когда ты"]
+    if any(marker in lowered for marker in past_markers):
+        strengths.append("ты опираешься на прошлый опыт пользователя")
+    else:
+        weak_points.append("мало фокуса на реальных прошлых действиях пользователя")
+        next_steps.append("добавь вопрос: «Расскажи про последний раз, когда ты решал эту задачу»")
+
+    emotion_markers = ["бесило", "злило", "раздражало", "стресс", "обидно", "устал"]
+    if any(marker in lowered for marker in emotion_markers):
+        strengths.append("затронуты эмоции — это помогает найти настоящую боль")
+    else:
+        weak_points.append("нет фокуса на эмоциях, а именно они показывают глубину боли")
+        next_steps.append("добавь вопрос: «Что в этом процессе бесило или злило сильнее всего?»")
+
+    if len(text.split()) >= 20:
+        strengths.append("ответ достаточно развёрнутый, есть материал для анализа")
+    else:
+        weak_points.append("ответ слишком короткий: пока мало контекста для сильного вывода")
+        next_steps.append("добавь 1 конкретный кейс пользователя: контекст → действие → результат")
+
+    lines = ["\n\n🧠 Разбор как преподаватель:"]
+    if strengths:
+        lines.append("• Сильные стороны: " + "; ".join(strengths[:3]) + ".")
+    if weak_points:
+        lines.append("• Слабые места: " + "; ".join(weak_points[:3]) + ".")
+    if next_steps:
+        lines.append("• Как усилить следующий ответ: " + " | ".join(next_steps[:3]) + ".")
+
+    return "\n".join(lines)
+
+
+def _build_final_mini_test():
+    return (
+        "\n\n📝 Мини‑тест (4 вопроса)\n"
+        "1) Какой вопрос лучше для CustDev?\n"
+        "A) Ты бы купил этот продукт?\n"
+        "B) Расскажи про последний раз, когда ты решал эту задачу.\n"
+        "C) Тебе в целом нравится идея?\n\n"
+        "2) Что лучше всего показывает настоящую боль пользователя?\n"
+        "A) Вежливое согласие\n"
+        "B) Общие рассуждения\n"
+        "C) Сильные эмоции и конкретные примеры\n\n"
+        "3) Что делать после 2 интервью?\n"
+        "A) Срочно строить продукт\n"
+        "B) Дождаться паттернов на серии интервью\n"
+        "C) Игнорировать обратную связь\n\n"
+        "4) MVP на старте — это:\n"
+        "A) Минимальная ценность + ручная проверка спроса\n"
+        "B) Сразу сложный AI‑продукт\n"
+        "C) Полный функционал до первых пользователей\n\n"
+        "Отправь ответы в формате: 1B, 2C, 3B, 4A."
+    )
+
 # =====================================================
 # UNIVERSAL LESSON ENGINE
 # =====================================================
@@ -342,6 +458,12 @@ async def process_answer(
                 f"✅ Учтено: {matched}\n"
                 f"➡️ Для усиления добавь: {missing}"
             )
+            feedback_text += _build_direction_feedback(
+                answer_text=answer_text,
+                matched_keywords=matched_keywords,
+                missed_keywords=missed_keywords
+            )
+            feedback_text += _build_teacher_style_feedback(answer_text)
 
         await update.message.reply_text(feedback_text)
 
@@ -385,6 +507,13 @@ async def process_answer(
                 f"✅ Уже есть: {matched}\n"
                 f"➕ Добавь идеи: {expected}"
             )
+            feedback_text += _build_direction_feedback(
+                answer_text=answer_text,
+                matched_keywords=matched_keywords,
+                missed_keywords=missed_keywords
+            )
+
+        feedback_text += _build_teacher_style_feedback(answer_text)
 
         feedback_text += (
             "\n\n💬 Напиши новый ответ, и я проверю его ещё раз."
@@ -518,7 +647,7 @@ async def show_summary(
         "• анализ ответов\n\n"
 
             "⭐ +25 XP"
-        )
+        ) + _build_final_mini_test()
     )
 
     user["xp"] += 25
