@@ -29,7 +29,7 @@ def _normalize_keywords(raw_keywords):
     ]
 
 
-def _build_direction_feedback(
+def _build_answer_coach_feedback(
     answer_text,
     matched_keywords,
     missed_keywords
@@ -70,56 +70,53 @@ def _build_direction_feedback(
         )
 
     if not missed_keywords and matched_keywords:
-        return "\n\n🧭 Куда двигаемся дальше:\n• Отлично, вектор верный. Добавь больше конкретики из реального опыта пользователя."
-
-    return "\n".join(direction)
-
-
-def _build_teacher_style_feedback(answer_text):
-    text = (answer_text or "").strip()
-    lowered = text.lower()
-    if not text:
-        return ""
-
-    strengths = []
-    weak_points = []
-    next_steps = []
-
-    if "?" in text:
-        strengths.append("есть вопросы — ты не просто декларируешь, а исследуешь")
+        direction_block = (
+            "\n\n🧭 Куда двигаемся дальше:\n"
+            "• Отлично, вектор верный. Добавь больше конкретики из реального опыта пользователя."
+        )
     else:
-        weak_points.append("ответ без вопросов: сложно проверить гипотезу на реальных людях")
-        next_steps.append("добавь минимум 2 открытых вопроса, начинающихся с «как», «что», «расскажи»")
+        direction_block = "\n".join(direction)
 
-    past_markers = ["последний раз", "недавно", "в прошлый", "когда ты"]
-    if any(marker in lowered for marker in past_markers):
-        strengths.append("ты опираешься на прошлый опыт пользователя")
-    else:
-        weak_points.append("мало фокуса на реальных прошлых действиях пользователя")
-        next_steps.append("добавь вопрос: «Расскажи про последний раз, когда ты решал эту задачу»")
+    lines = []
+    questions = [part.strip() for part in text.split("?") if part.strip()]
+    question_count = text.count("?")
+    open_starts = (
+        "что", "как", "почему", "зачем",
+        "опиши", "расскажи", "вспомни", "когда"
+    )
+    closed_markers = (
+        "да или нет", "да/нет", "купил бы", "будете ли",
+        "будешь ли", "хотели бы", "нравится ли"
+    )
+    emotion_markers = (
+        "бесит", "бесило", "злит", "раздраж", "обидно",
+        "стресс", "тревог", "рад", "доволен", "устал"
+    )
 
-    emotion_markers = ["бесило", "злило", "раздражало", "стресс", "обидно", "устал"]
-    if any(marker in lowered for marker in emotion_markers):
-        strengths.append("затронуты эмоции — это помогает найти настоящую боль")
-    else:
-        weak_points.append("нет фокуса на эмоциях, а именно они показывают глубину боли")
-        next_steps.append("добавь вопрос: «Что в этом процессе бесило или злило сильнее всего?»")
+    open_questions = 0
+    closed_questions = 0
+    for raw in questions:
+        trimmed = raw.strip(" .,!?:;")
+        if trimmed.startswith(open_starts):
+            open_questions += 1
+        if any(marker in trimmed for marker in closed_markers) or " ли " in f" {trimmed} ":
+            closed_questions += 1
 
-    if len(text.split()) >= 20:
-        strengths.append("ответ достаточно развёрнутый, есть материал для анализа")
-    else:
-        weak_points.append("ответ слишком короткий: пока мало контекста для сильного вывода")
-        next_steps.append("добавь 1 конкретный кейс пользователя: контекст → действие → результат")
+    if question_count:
+        lines.append(f"• Вопросов в ответе: {question_count}")
+        lines.append(f"• Открытых формулировок: {open_questions}")
+    if closed_questions:
+        lines.append("• Вижу вопросы, на которые можно ответить «да/нет». Для CustDev лучше переформулировать их в открытые.")
+    if "последний" not in text and "в прошлый" not in text:
+        lines.append("• Добавь вопрос про реальный прошлый опыт: «Расскажи про последний раз, когда…».")
+    if not any(marker in text for marker in emotion_markers):
+        lines.append("• Добавь вопрос про эмоции: «Что в этом процессе бесило/злило сильнее всего?».")
 
-    lines = ["\n\n🧠 Разбор как преподаватель:"]
-    if strengths:
-        lines.append("• Сильные стороны: " + "; ".join(strengths[:3]) + ".")
-    if weak_points:
-        lines.append("• Слабые места: " + "; ".join(weak_points[:3]) + ".")
-    if next_steps:
-        lines.append("• Как усилить следующий ответ: " + " | ".join(next_steps[:3]) + ".")
+    teacher_block = ""
+    if lines:
+        teacher_block = "\n\n🧠 Разбор как преподаватель:\n" + "\n".join(lines)
 
-    return "\n".join(lines)
+    return direction_block + teacher_block
 
 
 def _build_final_mini_test():
@@ -458,12 +455,11 @@ async def process_answer(
                 f"✅ Учтено: {matched}\n"
                 f"➡️ Для усиления добавь: {missing}"
             )
-            feedback_text += _build_direction_feedback(
+            feedback_text += _build_answer_coach_feedback(
                 answer_text=answer_text,
                 matched_keywords=matched_keywords,
                 missed_keywords=missed_keywords
             )
-            feedback_text += _build_teacher_style_feedback(answer_text)
 
         await update.message.reply_text(feedback_text)
 
@@ -507,13 +503,11 @@ async def process_answer(
                 f"✅ Уже есть: {matched}\n"
                 f"➕ Добавь идеи: {expected}"
             )
-            feedback_text += _build_direction_feedback(
+            feedback_text += _build_answer_coach_feedback(
                 answer_text=answer_text,
                 matched_keywords=matched_keywords,
                 missed_keywords=missed_keywords
             )
-
-        feedback_text += _build_teacher_style_feedback(answer_text)
 
         feedback_text += (
             "\n\n💬 Напиши новый ответ, и я проверю его ещё раз."
