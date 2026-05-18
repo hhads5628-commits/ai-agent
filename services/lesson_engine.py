@@ -29,7 +29,7 @@ def _normalize_keywords(raw_keywords):
     ]
 
 
-codex/improve-custdev-interview-techniques-6lvye1
+
 def _build_answer_coach_feedback(
     answer_text,
     matched_keywords=None,
@@ -83,15 +83,11 @@ def _build_answer_coach_feedback(answer_text):
     text = (answer_text or "").strip().lower()
     if not text:
         return ""
- main
 
     lines = []
     questions = [part.strip() for part in text.split("?") if part.strip()]
     question_count = text.count("?")
- codex/improve-custdev-interview-techniques-6lvye1
 
-
- main
     open_starts = (
         "что", "как", "почему", "зачем",
         "опиши", "расскажи", "вспомни", "когда"
@@ -107,7 +103,7 @@ def _build_answer_coach_feedback(answer_text):
 
     open_questions = 0
     closed_questions = 0
- codex/improve-custdev-interview-techniques-6lvye1
+ 
     for raw in questions:
         trimmed = raw.strip(" .,!?:;")
         if trimmed.startswith(open_starts):
@@ -122,13 +118,13 @@ def _build_answer_coach_feedback(answer_text):
         if starts_open:
             open_questions += 1
         if has_closed:
- main
+
             closed_questions += 1
 
     if question_count:
         lines.append(f"• Вопросов в ответе: {question_count}")
         lines.append(f"• Открытых формулировок: {open_questions}")
-codex/improve-custdev-interview-techniques-6lvye1
+
     if closed_questions:
         lines.append("• Вижу вопросы, на которые можно ответить «да/нет». Для CustDev лучше переформулировать их в открытые.")
     if "последний" not in text and "в прошлый" not in text:
@@ -502,7 +498,7 @@ async def process_answer(
                 f"✅ Учтено: {matched}\n"
                 f"➡️ Для усиления добавь: {missing}"
             )
- codex/improve-custdev-interview-techniques-6lvye1
+ 
         feedback_text += _build_answer_coach_feedback(
             answer_text=answer_text,
             matched_keywords=matched_keywords,
@@ -553,7 +549,7 @@ async def process_answer(
                 f"✅ Уже есть: {matched}\n"
                 f"➕ Добавь идеи: {expected}"
             )
- codex/improve-custdev-interview-techniques-6lvye1
+ 
         feedback_text += _build_answer_coach_feedback(
             answer_text=answer_text,
             matched_keywords=matched_keywords,
@@ -561,7 +557,6 @@ async def process_answer(
         )
 
         feedback_text += _build_answer_coach_feedback(answer_text)
- main
 
         feedback_text += (
             "\n\n💬 Напиши новый ответ, и я проверю его ещё раз."
