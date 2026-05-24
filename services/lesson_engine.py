@@ -14,6 +14,39 @@ def _normalize_keywords(raw_keywords):
     return [str(word).strip().lower() for word in raw_keywords if str(word).strip()]
 
 
+def _build_answer_coach_feedback(
+    success,
+    matched_keywords=None,
+    missing_keywords=None,
+    skill="general",
+    **_,
+):
+    matched_keywords = matched_keywords or []
+    missing_keywords = missing_keywords or []
+
+    if success:
+        strengths = []
+        if matched_keywords:
+            strengths.append(f"попал в ключевые элементы: {', '.join(matched_keywords[:3])}")
+        strengths.append("ответ по теме и с понятной логикой")
+        return (
+            "\n\n🧠 Разбор ответа\n"
+            f"Сильные стороны: {('; '.join(strengths)).capitalize()}.\n"
+            "Что улучшить: добавь чуть больше конкретики и измеримости."
+        )
+
+    weak_parts = []
+    if missing_keywords:
+        weak_parts.append(f"не хватает акцента на: {', '.join(missing_keywords[:3])}")
+    weak_parts.append("мало конкретики в формулировке")
+    return (
+        "\n\n🧠 Разбор ответа\n"
+        "Сильные стороны: видно попытку ответить по теме.\n"
+        f"Зоны роста: {('; '.join(weak_parts)).capitalize()}.\n"
+        f"Микро-коррекция: переформулируй через шаблон 'кто → контекст → эффект' (навык: {skill})."
+    )
+
+
 async def continue_lesson(update, user, lesson):
     step = user.get("lesson_step", 0)
     blocks = lesson.get("blocks", [])
@@ -60,18 +93,32 @@ async def process_answer(update, user, text, lesson):
     keywords = _normalize_keywords(block.get("keywords", []))
     answer_text = (text or "").lower().strip()
     matched = [w for w in keywords if w in answer_text]
+    missing = [w for w in keywords if w not in answer_text]
     success = bool(answer_text) and (len(matched) >= max(1, (len(keywords) + 1) // 2) if keywords else True)
     skill = block.get("skill", "general")
 
     if success:
         user["xp"] += 20
         user["strengths"] = list(set(user.get("strengths", []) + [skill]))
-        await update.message.reply_text(block.get("success_text", "✅ Отлично. Сильный ответ."))
+        feedback_text = block.get("success_text", "✅ Отлично. Сильный ответ.")
+        feedback_text += _build_answer_coach_feedback(
+            success=True,
+            matched_keywords=matched,
+            missing_keywords=missing,
+            skill=skill,
+        )
+        await update.message.reply_text(feedback_text)
     else:
         user["xp"] += 5
         if skill not in user.get("weak_topics", []):
             user.setdefault("weak_topics", []).append(skill)
         feedback = block.get("fail_text", "⚠️ Нужно точнее. Попробуй указать контекст, мотивацию и ожидаемый прогресс.")
+        feedback += _build_answer_coach_feedback(
+            success=False,
+            matched_keywords=matched,
+            missing_keywords=missing,
+            skill=skill,
+        )
         await update.message.reply_text(feedback)
 
     user["waiting_for_answer"] = False

@@ -1,3 +1,5 @@
+import logging
+
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, MessageHandler, filters
 
@@ -14,6 +16,17 @@ from services.user_service import load_user, save_user
 from config import get_required_env
 
 BOT_TOKEN = get_required_env("BOT_TOKEN")
+
+logger = logging.getLogger(__name__)
+
+
+async def on_error(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
+    logger.exception("Unhandled bot error", exc_info=context.error)
+
+    if isinstance(update, Update) and update.effective_message:
+        await update.effective_message.reply_text(
+            "⚠️ Что-то пошло не так при обработке ответа. Попробуй отправить сообщение ещё раз."
+        )
 
 
 def next_locked_lesson(user: dict) -> str:
@@ -111,5 +124,6 @@ async def handle(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 app = ApplicationBuilder().token(BOT_TOKEN).build()
 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle))
+app.add_error_handler(on_error)
 print("🔥 AI PRODUCT COACH RUNNING")
 app.run_polling()
