@@ -12,16 +12,16 @@ LESSONS = [
 ]
 
 LESSON_TITLES = {
-    "jtbd": "JTBD",
-    "custdev": "CustDev",
-    "mvp": "MVP",
-    "metrics": "Product Metrics",
-    "unit_economics": "Unit Economics",
-    "prioritization": "Prioritization",
-    "roadmap_planning": "Roadmap Planning",
-    "retention": "Retention",
-    "onboarding": "Onboarding",
-    "ab_testing": "A/B Testing",
+    "jtbd": "Проблема и сегмент",
+    "custdev": "JTBD-интервью",
+    "mvp": "Ценностное предложение",
+    "metrics": "Метрики и North Star",
+    "unit_economics": "Активация и onboarding",
+    "prioritization": "Retention и когорты",
+    "roadmap_planning": "Эксперименты и A/B",
+    "retention": "Приоритизация",
+    "onboarding": "Discovery vs Delivery",
+    "ab_testing": "Стратегия и roadmap",
 }
 
 DIFFICULTY_MODES = ["beginner", "junior", "middle"]
