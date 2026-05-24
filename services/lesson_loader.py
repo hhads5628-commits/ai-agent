@@ -1,5 +1,7 @@
 import json
 
+from services.lesson_enricher import enrich_lesson_for_clarity
+
 # ======================
 # LOAD LESSON
 # ======================
@@ -20,4 +22,4 @@ def load_lesson(
 
         lesson = json.load(file)
 
-    return lesson
+    return enrich_lesson_for_clarity(lesson)

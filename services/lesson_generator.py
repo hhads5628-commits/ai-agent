@@ -6,6 +6,7 @@ from openai import OpenAI
 import json
 
 from config import get_env, get_required_env
+from services.lesson_enricher import enrich_lesson_for_clarity
 
 # =====================================================
 # DEEPSEEK CLIENT
@@ -27,7 +28,7 @@ def generate_lesson(
     local_lesson_path = Path("lessons") / f"{topic}.json"
     if local_lesson_path.exists():
         with local_lesson_path.open("r", encoding="utf-8") as file:
-            return json.load(file)
+            return enrich_lesson_for_clarity(json.load(file))
 
 
     prompt = f"""
@@ -228,4 +229,4 @@ def generate_lesson(
     # RETURN LESSON
     # =====================================================
 
-    return lesson
+    return enrich_lesson_for_clarity(lesson)
