@@ -1,5 +1,7 @@
 # services/lesson_generator.py
 
+from pathlib import Path
+
 from openai import OpenAI
 import json
 
@@ -22,6 +24,11 @@ def generate_lesson(
     topic,
     level="junior"
 ):
+    local_lesson_path = Path("lessons") / f"{topic}.json"
+    if local_lesson_path.exists():
+        with local_lesson_path.open("r", encoding="utf-8") as file:
+            return json.load(file)
+
 
     prompt = f"""
 
