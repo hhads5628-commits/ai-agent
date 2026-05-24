@@ -11,8 +11,9 @@ from services.lesson_engine import continue_lesson, process_answer
 from services.lesson_generator import generate_lesson
 from services.state_initializer import ensure_user_state
 from services.user_service import load_user, save_user
+from config import get_required_env
 
-BOT_TOKEN = "8235831309:AAFvZtDc6FDDN1cZAO6LH61Dv_ByoVlXqaY"
+BOT_TOKEN = get_required_env("BOT_TOKEN")
 
 
 def next_locked_lesson(user: dict) -> str:

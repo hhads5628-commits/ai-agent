@@ -1,0 +1,17 @@
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Runtime/user data
+/data/users/*.json
+/debug/*.log
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
