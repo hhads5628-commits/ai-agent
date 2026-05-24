@@ -1,0 +1,22 @@
+name: Python Smoke
+
+on:
+  pull_request:
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Compile key modules
+        env:
+          BOT_TOKEN: dummy
+          DEEPSEEK_API_KEY: dummy
+        run: python -m py_compile bot.py services/lesson_generator.py config.py security_checks.py
