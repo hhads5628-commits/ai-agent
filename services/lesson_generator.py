@@ -3,13 +3,15 @@
 from openai import OpenAI
 import json
 
+from config import get_env, get_required_env
+
 # =====================================================
 # DEEPSEEK CLIENT
 # =====================================================
 
 client = OpenAI(
-    api_key="sk-419c5839df934fa480a110a98f356ab2",
-    base_url="https://api.deepseek.com"
+    api_key=get_required_env("DEEPSEEK_API_KEY"),
+    base_url=get_env("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
 )
 
 # =====================================================
@@ -125,7 +127,7 @@ def generate_lesson(
 
     response = client.chat.completions.create(
 
-        model="deepseek-chat",
+        model=get_env("DEEPSEEK_MODEL", "deepseek-chat"),
 
         messages=[
             {
